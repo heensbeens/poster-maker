@@ -306,7 +306,6 @@ export const CanvasElementRenderer: React.FC<CanvasElementRendererProps> = ({
               backgroundImage: element.properties.imageUrl ? `url(${element.properties.imageUrl})` : 'none',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              zIndex: 0,
             }}
           />
         );

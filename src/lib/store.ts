@@ -81,7 +81,7 @@ const initialElements: CanvasElement[] = [
     width: 573,
     height: 668.5,
     rotation: 0,
-    zIndex: 0,
+    zIndex: -1, // Negative zIndex to ensure background stays behind all other elements
     properties: {
       backgroundColor: '#FCFCFD',
     },

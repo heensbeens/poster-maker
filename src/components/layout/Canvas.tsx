@@ -98,15 +98,17 @@ export const Canvas: React.FC = () => {
         onClick={handleCanvasClick}
         onMouseMove={handleMouseMove}
       >
-        {/* Render all elements */}
-        {elements.map((element) => (
-          <CanvasElementRenderer
-            key={element.id}
-            element={element}
-            isSelected={selectedElementIds.includes(element.id)}
-            onMouseDown={(e) => handleElementMouseDown(e, element)}
-          />
-        ))}
+        {/* Render all elements sorted by zIndex (lowest to highest) */}
+        {[...elements]
+          .sort((a, b) => a.zIndex - b.zIndex)
+          .map((element) => (
+            <CanvasElementRenderer
+              key={element.id}
+              element={element}
+              isSelected={selectedElementIds.includes(element.id)}
+              onMouseDown={(e) => handleElementMouseDown(e, element)}
+            />
+          ))}
       </div>
     </div>
   );

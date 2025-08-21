@@ -165,7 +165,7 @@ export const ElementsPanel: React.FC = () => {
         width: 573,
         height: 668.5,
         rotation: 0,
-        zIndex: 0,
+        zIndex: -1, // Negative zIndex to ensure background stays behind all other elements
         properties: {
           backgroundColor: color,
         },
@@ -211,10 +211,10 @@ export const ElementsPanel: React.FC = () => {
           type: 'background',
           x: 0,
           y: 0,
-          width: 600,
-          height: 400,
+          width: 573,
+          height: 668.5,
           rotation: 0,
-          zIndex: 0,
+          zIndex: -1, // Negative zIndex to ensure background stays behind all other elements
           properties: {
             imageUrl: imageUrl,
           },
