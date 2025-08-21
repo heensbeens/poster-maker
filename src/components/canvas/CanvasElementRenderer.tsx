@@ -153,7 +153,7 @@ export const CanvasElementRenderer: React.FC<CanvasElementRendererProps> = ({
               textDecoration: element.properties.textDecoration || 'none',
               color: element.properties.color || '#000000',
               backgroundColor: element.properties.backgroundColor || 'transparent',
-              textAlign: (element.properties.textAlign as any) || 'left',
+              textAlign: (element.properties.textAlign as 'left' | 'center' | 'right') || 'left',
               padding: '4px',
               lineHeight: '1.2',
               overflow: 'hidden',
@@ -184,7 +184,7 @@ export const CanvasElementRenderer: React.FC<CanvasElementRendererProps> = ({
               textDecoration: element.properties.textDecoration || 'none',
               color: element.properties.color || '#000000',
               backgroundColor: element.properties.backgroundColor || 'transparent',
-              textAlign: (element.properties.textAlign as any) || 'left',
+              textAlign: (element.properties.textAlign as 'left' | 'center' | 'right') || 'left',
               padding: '4px',
               whiteSpace: 'pre-wrap',
               lineHeight: '1.2',
@@ -296,7 +296,7 @@ export const CanvasElementRenderer: React.FC<CanvasElementRendererProps> = ({
       case 'background':
         return (
           <div
-            className="absolute"
+            className="absolute pointer-events-none"
             style={{
               left: element.x,
               top: element.y,
@@ -306,6 +306,7 @@ export const CanvasElementRenderer: React.FC<CanvasElementRendererProps> = ({
               backgroundImage: element.properties.imageUrl ? `url(${element.properties.imageUrl})` : 'none',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
+              zIndex: 0,
             }}
           />
         );

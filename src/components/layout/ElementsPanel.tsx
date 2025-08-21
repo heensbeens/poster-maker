@@ -162,8 +162,8 @@ export const ElementsPanel: React.FC = () => {
         type: 'background',
         x: 0,
         y: 0,
-        width: 600,
-        height: 400,
+        width: 573,
+        height: 668.5,
         rotation: 0,
         zIndex: 0,
         properties: {

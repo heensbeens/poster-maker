@@ -8,24 +8,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { 
-  AlignLeft, 
-  AlignCenter, 
-  AlignRight, 
+  AlignStartVertical,
+  AlignHorizontalJustifyCenter,
+  AlignEndVertical,
+  AlignVerticalJustifyStart,
+  AlignVerticalJustifyCenter,
+  AlignVerticalJustifyEnd,
+  BringToFront,
+  SendToBack,
   Bold, 
   Italic, 
   Underline, 
-  ArrowUp,
-  ArrowDown,
   Trash2,
-  CornerLeftUp,
-  CornerRightUp,
-  ArrowLeft,
-  Circle,
-  ArrowRight,
-  CornerLeftDown,
-  CornerRightDown,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  AlignLeft, 
+  AlignCenter, 
+  AlignRight
 } from 'lucide-react';
 import { usePosterMakerStore } from '@/lib/store';
 import { calculateTextDimensions } from '@/lib/textUtils';
@@ -34,11 +33,14 @@ export const PropertiesPanel: React.FC = () => {
   const { 
     elements, 
     selectedElementId, 
+    selectedElementIds,
     updateElement, 
     deleteElement, 
     bringForward, 
     sendBackward,
-    clearCanvas 
+    clearCanvas,
+    alignElementsHorizontally,
+    alignElementsVertically
   } = usePosterMakerStore();
 
   const selectedElement = elements.find(el => el.id === selectedElementId);
@@ -99,54 +101,62 @@ export const PropertiesPanel: React.FC = () => {
 
 
   const handlePositionChange = (position: string) => {
-    const canvasWidth = 600;
-    const canvasHeight = 400;
-    const elementWidth = selectedElement.width;
-    const elementHeight = selectedElement.height;
-
-    let newX = 0;
-    let newY = 0;
-
+    if (!selectedElement && selectedElementIds.length === 0) return;
+    
     switch (position) {
-      case 'top-left':
-        newX = 0;
-        newY = 0;
+      case 'align-start-vertical':
+        if (selectedElementIds.length > 1) {
+          alignElementsHorizontally('left');
+        } else if (selectedElement) {
+          updateElement(selectedElement.id, { x: 0 });
+        }
         break;
-      case 'top-center':
-        newX = (canvasWidth - elementWidth) / 2;
-        newY = 0;
+      case 'align-horizontal-justify-center':
+        if (selectedElementIds.length > 1) {
+          alignElementsHorizontally('center');
+        } else if (selectedElement) {
+          const canvasWidth = 573;
+          const newX = (canvasWidth - selectedElement.width) / 2;
+          updateElement(selectedElement.id, { x: newX });
+        }
         break;
-      case 'top-right':
-        newX = canvasWidth - elementWidth;
-        newY = 0;
+      case 'align-end-vertical':
+        if (selectedElementIds.length > 1) {
+          alignElementsHorizontally('right');
+        } else if (selectedElement) {
+          const canvasWidth = 573;
+          const newX = canvasWidth - selectedElement.width;
+          updateElement(selectedElement.id, { x: newX });
+        }
         break;
-      case 'middle-left':
-        newX = 0;
-        newY = (canvasHeight - elementHeight) / 2;
+      case 'align-vertical-justify-start':
+        if (selectedElementIds.length > 1) {
+          alignElementsVertically('top');
+        } else if (selectedElement) {
+          updateElement(selectedElement.id, { y: 0 });
+        }
         break;
-      case 'center':
-        newX = (canvasWidth - elementWidth) / 2;
-        newY = (canvasHeight - elementHeight) / 2;
+      case 'align-vertical-justify-center':
+        if (selectedElementIds.length > 1) {
+          alignElementsVertically('center');
+        } else if (selectedElement) {
+          const canvasHeight = 668.5;
+          const newY = (canvasHeight - selectedElement.height) / 2;
+          updateElement(selectedElement.id, { y: newY });
+        }
         break;
-      case 'middle-right':
-        newX = canvasWidth - elementWidth;
-        newY = (canvasHeight - elementHeight) / 2;
+      case 'align-vertical-justify-end':
+        if (selectedElementIds.length > 1) {
+          alignElementsVertically('bottom');
+        } else if (selectedElement) {
+          const canvasHeight = 668.5;
+          const newY = canvasHeight - selectedElement.height;
+          updateElement(selectedElement.id, { y: newY });
+        }
         break;
-      case 'bottom-left':
-        newX = 0;
-        newY = canvasHeight - elementHeight;
-        break;
-      case 'bottom-center':
-        newX = (canvasWidth - elementWidth) / 2;
-        newY = canvasHeight - elementHeight;
-        break;
-      case 'bottom-right':
-        newX = canvasWidth - elementWidth;
-        newY = canvasHeight - elementHeight;
-        break;
+      default:
+        return;
     }
-
-    updateElement(selectedElement.id, { x: newX, y: newY });
   };
 
   return (
@@ -191,9 +201,9 @@ export const PropertiesPanel: React.FC = () => {
                 border: '1px solid #e5e7eb',
                 borderRadius: '8px'
               }}
-              onClick={() => handlePositionChange('top-left')}
+              onClick={() => handlePositionChange('align-start-vertical')}
             >
-              <CornerLeftUp className="w-4 h-4" />
+              <AlignStartVertical className="w-4 h-4" />
             </button>
             <button
               style={{
@@ -208,9 +218,9 @@ export const PropertiesPanel: React.FC = () => {
                 border: '1px solid #e5e7eb',
                 borderRadius: '8px'
               }}
-              onClick={() => handlePositionChange('center')}
+              onClick={() => handlePositionChange('align-horizontal-justify-center')}
             >
-              <Circle className="w-4 h-4" />
+              <AlignHorizontalJustifyCenter className="w-4 h-4" />
             </button>
             <button
               style={{
@@ -225,9 +235,9 @@ export const PropertiesPanel: React.FC = () => {
                 border: '1px solid #e5e7eb',
                 borderRadius: '8px'
               }}
-              onClick={() => handlePositionChange('top-right')}
+              onClick={() => handlePositionChange('align-end-vertical')}
             >
-              <CornerRightUp className="w-4 h-4" />
+              <AlignEndVertical className="w-4 h-4" />
             </button>
             <button
               style={{
@@ -242,9 +252,9 @@ export const PropertiesPanel: React.FC = () => {
                 border: '1px solid #e5e7eb',
                 borderRadius: '8px'
               }}
-              onClick={() => handlePositionChange('middle-left')}
+              onClick={() => handlePositionChange('align-vertical-justify-start')}
             >
-              <ArrowLeft className="w-4 h-4" />
+              <AlignVerticalJustifyStart className="w-4 h-4" />
             </button>
             <button
               style={{
@@ -259,9 +269,9 @@ export const PropertiesPanel: React.FC = () => {
                 border: '1px solid #e5e7eb',
                 borderRadius: '8px'
               }}
-              onClick={() => handlePositionChange('middle-right')}
+              onClick={() => handlePositionChange('align-vertical-justify-center')}
             >
-              <ArrowRight className="w-4 h-4" />
+              <AlignVerticalJustifyCenter className="w-4 h-4" />
             </button>
             <button
               style={{
@@ -276,9 +286,9 @@ export const PropertiesPanel: React.FC = () => {
                 border: '1px solid #e5e7eb',
                 borderRadius: '8px'
               }}
-              onClick={() => handlePositionChange('bottom-center')}
+              onClick={() => handlePositionChange('align-vertical-justify-end')}
             >
-              <ArrowDown className="w-4 h-4" />
+              <AlignVerticalJustifyEnd className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -304,7 +314,7 @@ export const PropertiesPanel: React.FC = () => {
               }}
               onClick={() => bringForward(selectedElement.id)}
             >
-              <ArrowUp className="w-4 h-4" />
+              <BringToFront className="w-4 h-4" />
             </button>
             <button
               style={{
@@ -319,7 +329,7 @@ export const PropertiesPanel: React.FC = () => {
               }}
               onClick={() => sendBackward(selectedElement.id)}
             >
-              <ArrowDown className="w-4 h-4" />
+              <SendToBack className="w-4 h-4" />
             </button>
             <button
               style={{
@@ -497,7 +507,7 @@ export const PropertiesPanel: React.FC = () => {
                       pointerEvents: 'none'
                     }}
                   ></div>
-                </div>
+              </div>
             </div>
 
               {/* Text Styling Row 2 */}

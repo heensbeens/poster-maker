@@ -13,37 +13,39 @@ export const calculateTextDimensions = (
   }
   
   // Set font properties
-  context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+  const fontFamilyValue = getFontFamilyValue(fontFamily);
+  context.font = `${fontWeight} ${fontSize}px ${fontFamilyValue}`;
   
   // Split text by lines
   const lines = text.split('\n');
   
-  // Calculate width (max line width)
+  // Measure each line and find the maximum width
   let maxWidth = 0;
   lines.forEach(line => {
     const metrics = context.measureText(line);
     maxWidth = Math.max(maxWidth, metrics.width);
   });
   
-  // Calculate height (line height * number of lines)
+  // Calculate height based on number of lines and line height
   const lineHeight = fontSize * 1.2; // Standard line height
-  const totalHeight = lineHeight * lines.length;
+  const height = lines.length * lineHeight;
   
   return {
     width: Math.max(maxWidth + 8, 50), // Add padding and minimum width
-    height: Math.max(totalHeight + 8, 30) // Add padding and minimum height
+    height: Math.max(height, 30) // Minimum height
   };
 };
 
-export const getFontFamilyValue = (fontFamily: string): string => {
-  const fontMap: { [key: string]: string } = {
-    'Inter': 'var(--font-inter), Inter, sans-serif',
-    'Roboto': 'var(--font-roboto), Roboto, sans-serif',
+export const getFontFamilyValue = (fontName: string): string => {
+  const fontMap: Record<string, string> = {
+    'Inter': '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    'Roboto': '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     'Arial': 'Arial, sans-serif',
     'Helvetica': 'Helvetica, Arial, sans-serif',
     'Times New Roman': '"Times New Roman", Times, serif',
     'Georgia': 'Georgia, serif',
+    'Courier New': '"Courier New", Courier, monospace',
   };
   
-  return fontMap[fontFamily] || fontFamily;
+  return fontMap[fontName] || fontName;
 };

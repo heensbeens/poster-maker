@@ -11,7 +11,10 @@ export const Canvas: React.FC = () => {
   const { 
     elements, 
     selectedElementId, 
+    selectedElementIds,
     selectElement, 
+    selectMultipleElements,
+    toggleElementSelection,
     moveElement, 
     undo, 
     redo,
@@ -30,7 +33,14 @@ export const Canvas: React.FC = () => {
 
   const handleElementMouseDown = (e: React.MouseEvent, element: CanvasElement) => {
     e.stopPropagation();
-    selectElement(element.id);
+    
+    // Handle multi-select with Ctrl/Cmd key
+    if (e.ctrlKey || e.metaKey) {
+      toggleElementSelection(element.id);
+    } else {
+      // Single select - clear other selections
+      selectElement(element.id);
+    }
     
     const rect = canvasRef.current?.getBoundingClientRect();
     if (rect) {
@@ -42,7 +52,7 @@ export const Canvas: React.FC = () => {
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement> | MouseEvent) => {
     if (!isDragging || !selectedElementId) return;
     
     const rect = canvasRef.current?.getBoundingClientRect();
@@ -59,14 +69,14 @@ export const Canvas: React.FC = () => {
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove as any);
+      document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove as any);
+        document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, selectedElementId, dragOffset]);
+  }, [isDragging, selectedElementId, dragOffset, handleMouseMove]);
 
   const canUndo = history.past.length > 0;
   const canRedo = history.future.length > 0;
@@ -75,8 +85,16 @@ export const Canvas: React.FC = () => {
     <div className="flex-1 flex items-center justify-center overflow-hidden">
       <div 
         ref={canvasRef}
-        className="relative bg-white border-2 border-gray-300 shadow-lg"
-        style={{ width: '600px', height: '400px' }}
+        id="poster-canvas"
+        className="relative"
+        style={{ 
+          width: '573px',
+          height: '668.5px',
+          flexShrink: 0,
+          background: 'var(--Gray-25, #FCFCFD)',
+          boxShadow: '1.317px 1.317px 1.317px 0 rgba(0, 0, 0, 0.08), 0 2.634px 5.269px 0 rgba(44, 43, 42, 0.10)',
+          overflow: 'hidden'
+        }}
         onClick={handleCanvasClick}
         onMouseMove={handleMouseMove}
       >
@@ -85,7 +103,7 @@ export const Canvas: React.FC = () => {
           <CanvasElementRenderer
             key={element.id}
             element={element}
-            isSelected={selectedElementId === element.id}
+            isSelected={selectedElementIds.includes(element.id)}
             onMouseDown={(e) => handleElementMouseDown(e, element)}
           />
         ))}

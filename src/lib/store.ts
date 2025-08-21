@@ -39,6 +39,7 @@ interface PosterMakerStore {
   // Canvas state
   elements: CanvasElement[];
   selectedElementId: string | null;
+  selectedElementIds: string[];
   canvasSize: { width: number; height: number };
   
   // History
@@ -49,12 +50,18 @@ interface PosterMakerStore {
   updateElement: (id: string, updates: Partial<CanvasElement>) => void;
   deleteElement: (id: string) => void;
   selectElement: (id: string | null) => void;
+  selectMultipleElements: (ids: string[]) => void;
+  toggleElementSelection: (id: string) => void;
   moveElement: (id: string, x: number, y: number) => void;
   resizeElement: (id: string, width: number, height: number) => void;
   rotateElement: (id: string, rotation: number) => void;
   bringForward: (id: string) => void;
   sendBackward: (id: string) => void;
   clearCanvas: () => void;
+  
+  // Alignment actions for multiple elements
+  alignElementsHorizontally: (alignType: 'left' | 'center' | 'right') => void;
+  alignElementsVertically: (alignType: 'top' | 'center' | 'bottom') => void;
   
   // History actions
   undo: () => void;
@@ -71,26 +78,26 @@ const initialElements: CanvasElement[] = [
     type: 'background',
     x: 0,
     y: 0,
-    width: 600,
-    height: 400,
+    width: 573,
+    height: 668.5,
     rotation: 0,
     zIndex: 0,
     properties: {
-      backgroundColor: '#ffffff',
+      backgroundColor: '#FCFCFD',
     },
   },
   {
     id: 'circle-1',
     type: 'shape',
-    x: 150,
-    y: 100,
-    width: 200,
-    height: 200,
+    x: 161.5,
+    y: 209.25,
+    width: 250,
+    height: 250,
     rotation: 0,
     zIndex: 1,
     properties: {
       shapeType: 'circle',
-      fillColor: '#8b5cf6',
+      fillColor: '#7B42F6',
       fillOpacity: 1,
       strokeColor: '#000000',
       strokeWidth: 0,
@@ -99,17 +106,17 @@ const initialElements: CanvasElement[] = [
   {
     id: 'text-1',
     type: 'text',
-    x: 200,
-    y: 150,
-    width: 200,
-    height: 80,
+    x: 211.5,
+    y: 289.25,
+    width: 150,
+    height: 90,
     rotation: 0,
     zIndex: 2,
     properties: {
       text: 'This is an\namazing\ndesign to be\nworking on!',
       fontSize: 20,
       fontFamily: 'Inter',
-      fontWeight: 'normal',
+      fontWeight: 'bold',
       color: '#ffffff',
       textAlign: 'center',
     },
@@ -117,8 +124,8 @@ const initialElements: CanvasElement[] = [
   {
     id: 'text-2',
     type: 'text',
-    x: 250,
-    y: 250,
+    x: 211.5,
+    y: 429.25,
     width: 100,
     height: 30,
     rotation: 0,
@@ -128,15 +135,15 @@ const initialElements: CanvasElement[] = [
       fontSize: 16,
       fontFamily: 'Inter',
       fontWeight: 'normal',
-      color: '#ffffff',
-      textAlign: 'center',
+      color: '#000000',
+      textAlign: 'left',
     },
   },
   {
     id: 'text-3',
     type: 'text',
-    x: 450,
-    y: 30,
+    x: 473,
+    y: 59.25,
     width: 100,
     height: 30,
     rotation: 0,
@@ -153,8 +160,8 @@ const initialElements: CanvasElement[] = [
   {
     id: 'text-4',
     type: 'text',
-    x: 30,
-    y: 320,
+    x: 53,
+    y: 629.25,
     width: 100,
     height: 30,
     rotation: 0,
@@ -171,8 +178,8 @@ const initialElements: CanvasElement[] = [
   {
     id: 'text-5',
     type: 'text',
-    x: 470,
-    y: 320,
+    x: 473,
+    y: 629.25,
     width: 100,
     height: 30,
     rotation: 0,
@@ -182,7 +189,7 @@ const initialElements: CanvasElement[] = [
       fontSize: 14,
       fontFamily: 'Inter',
       fontWeight: 'normal',
-      color: '#000000',
+      color: '#7B42F6',
       textAlign: 'right',
     },
   },
@@ -191,7 +198,8 @@ const initialElements: CanvasElement[] = [
 export const usePosterMakerStore = create<PosterMakerStore>((set, get) => ({
   elements: initialElements,
   selectedElementId: null,
-  canvasSize: { width: 600, height: 400 },
+  selectedElementIds: [],
+  canvasSize: { width: 573, height: 668.5 },
   
   history: {
     past: [],
@@ -225,13 +233,42 @@ export const usePosterMakerStore = create<PosterMakerStore>((set, get) => ({
     set((state) => ({
       elements: state.elements.filter((element) => element.id !== id),
       selectedElementId: state.selectedElementId === id ? null : state.selectedElementId,
+      selectedElementIds: state.selectedElementIds.filter(existingId => existingId !== id)
     }));
     
     get().saveToHistory();
   },
   
   selectElement: (id) => {
-    set({ selectedElementId: id });
+    set({ 
+      selectedElementId: id,
+      selectedElementIds: id ? [id] : []
+    });
+  },
+
+  selectMultipleElements: (ids) => {
+    set({ 
+      selectedElementId: ids.length === 1 ? ids[0] : null,
+      selectedElementIds: ids
+    });
+  },
+
+  toggleElementSelection: (id) => {
+    set((state) => {
+      const isSelected = state.selectedElementIds.includes(id);
+      let newSelectedIds: string[];
+      
+      if (isSelected) {
+        newSelectedIds = state.selectedElementIds.filter(existingId => existingId !== id);
+      } else {
+        newSelectedIds = [...state.selectedElementIds, id];
+      }
+      
+      return {
+        selectedElementId: newSelectedIds.length === 1 ? newSelectedIds[0] : null,
+        selectedElementIds: newSelectedIds
+      };
+    });
   },
   
   moveElement: (id, x, y) => {
@@ -279,7 +316,65 @@ export const usePosterMakerStore = create<PosterMakerStore>((set, get) => ({
   },
   
   clearCanvas: () => {
-    set({ elements: [], selectedElementId: null });
+    set({ elements: [], selectedElementId: null, selectedElementIds: [] });
+    get().saveToHistory();
+  },
+
+  alignElementsHorizontally: (alignType) => {
+    const state = get();
+    const selectedElements = state.elements.filter(el => state.selectedElementIds.includes(el.id));
+    
+    if (selectedElements.length <= 1) return;
+    
+    const canvasWidth = 573;
+    
+    selectedElements.forEach(element => {
+      let newX = element.x;
+      
+      switch (alignType) {
+        case 'left':
+          newX = 0;
+          break;
+        case 'center':
+          newX = (canvasWidth - element.width) / 2;
+          break;
+        case 'right':
+          newX = canvasWidth - element.width;
+          break;
+      }
+      
+      get().updateElement(element.id, { x: newX });
+    });
+    
+    get().saveToHistory();
+  },
+
+  alignElementsVertically: (alignType) => {
+    const state = get();
+    const selectedElements = state.elements.filter(el => state.selectedElementIds.includes(el.id));
+    
+    if (selectedElements.length <= 1) return;
+    
+    const canvasHeight = 668.5;
+    
+    selectedElements.forEach(element => {
+      let newY = element.y;
+      
+      switch (alignType) {
+        case 'top':
+          newY = 0;
+          break;
+        case 'center':
+          newY = (canvasHeight - element.height) / 2;
+          break;
+        case 'bottom':
+          newY = canvasHeight - element.height;
+          break;
+      }
+      
+      get().updateElement(element.id, { y: newY });
+    });
+    
     get().saveToHistory();
   },
   
