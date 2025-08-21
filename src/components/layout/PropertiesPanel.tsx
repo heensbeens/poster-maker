@@ -65,8 +65,8 @@ export const PropertiesPanel: React.FC = () => {
   };
 
   const handlePositionChange = (position: string) => {
-    const canvasWidth = 800;
-    const canvasHeight = 600;
+    const canvasWidth = 600;
+    const canvasHeight = 400;
     const elementWidth = selectedElement.width;
     const elementHeight = selectedElement.height;
 

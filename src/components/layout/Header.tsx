@@ -11,7 +11,14 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+    <header 
+      className="bg-white border-b border-gray-200 flex items-center justify-between"
+      style={{ 
+        height: '61px',
+        width: '1440px',
+        padding: '14px 28px'
+      }}
+    >
       <div className="flex items-center">
         <h1 className="text-lg font-semibold text-gray-900">Editor / Flyer</h1>
       </div>
@@ -20,8 +27,14 @@ export const Header: React.FC = () => {
         <Button 
           onClick={handleDownload}
           className="bg-purple-600 hover:bg-purple-700 text-white"
+          style={{
+            display: 'flex',
+            padding: '8px 12px',
+            alignItems: 'center',
+            gap: '8px'
+          }}
         >
-          <Download className="w-4 h-4 mr-2" />
+          <Download className="w-4 h-4" />
           Download
         </Button>
       </div>

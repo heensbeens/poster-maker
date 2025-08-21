@@ -23,15 +23,15 @@ export const ElementsPanel: React.FC = () => {
   const handleAddText = (type: 'headline' | 'body') => {
     addElement({
       type: 'text',
-      x: 100,
-      y: 100,
-      width: 200,
-      height: 50,
+      x: 50,
+      y: 50,
+      width: 150,
+      height: 40,
       rotation: 0,
       zIndex: 1,
       properties: {
         text: type === 'headline' ? 'Headline Text' : 'Body Text',
-        fontSize: type === 'headline' ? 32 : 16,
+        fontSize: type === 'headline' ? 24 : 14,
         fontFamily: 'Inter',
         fontWeight: type === 'headline' ? 'bold' : 'normal',
         color: '#000000',
@@ -43,10 +43,10 @@ export const ElementsPanel: React.FC = () => {
   const handleAddShape = (shapeType: 'rectangle' | 'circle' | 'star' | 'triangle') => {
     addElement({
       type: 'shape',
-      x: 100,
-      y: 100,
-      width: 100,
-      height: 100,
+      x: 50,
+      y: 50,
+      width: 80,
+      height: 80,
       rotation: 0,
       zIndex: 1,
       properties: {
@@ -64,10 +64,10 @@ export const ElementsPanel: React.FC = () => {
       if (url) {
         addElement({
           type: 'image',
-          x: 100,
-          y: 100,
-          width: 200,
-          height: 150,
+          x: 50,
+          y: 50,
+          width: 150,
+          height: 100,
           rotation: 0,
           zIndex: 1,
           properties: {
@@ -89,8 +89,8 @@ export const ElementsPanel: React.FC = () => {
           type: 'background',
           x: 0,
           y: 0,
-          width: 800,
-          height: 600,
+          width: 600,
+          height: 400,
           rotation: 0,
           zIndex: 0,
           properties: {
@@ -103,8 +103,8 @@ export const ElementsPanel: React.FC = () => {
         type: 'background',
         x: 0,
         y: 0,
-        width: 800,
-        height: 600,
+        width: 600,
+        height: 400,
         rotation: 0,
         zIndex: 0,
         properties: {
