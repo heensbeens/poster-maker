@@ -46,19 +46,36 @@ export const ElementsPanel: React.FC = () => {
   const { addElement } = usePosterMakerStore();
 
   const handleAddText = (type: 'headline' | 'body') => {
+    const text = type === 'headline' ? 'Headline Text' : 'Body Text';
+    const fontSize = type === 'headline' ? 24 : 14;
+    const fontWeight = type === 'headline' ? 'bold' : 'normal';
+    
+    // Calculate proper dimensions for the text
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    let width = 150;
+    let height = 40;
+    
+    if (context) {
+      context.font = `${fontWeight} ${fontSize}px Inter`;
+      const metrics = context.measureText(text);
+      width = Math.max(metrics.width + 16, 50);
+      height = Math.max(fontSize * 1.2 + 16, 30);
+    }
+    
     addElement({
       type: 'text',
       x: 50,
       y: 50,
-      width: 150,
-      height: 40,
+      width,
+      height,
       rotation: 0,
       zIndex: 1,
       properties: {
-        text: type === 'headline' ? 'Headline Text' : 'Body Text',
-        fontSize: type === 'headline' ? 24 : 14,
+        text,
+        fontSize,
         fontFamily: 'Inter',
-        fontWeight: type === 'headline' ? 'bold' : 'normal',
+        fontWeight,
         color: '#000000',
         textAlign: 'left',
       },
@@ -77,8 +94,9 @@ export const ElementsPanel: React.FC = () => {
       properties: {
         shapeType,
         fillColor: '#6366f1',
+        fillOpacity: 1,
         strokeColor: '#000000',
-        strokeWidth: 2,
+        strokeWidth: 0,
       },
     });
   };

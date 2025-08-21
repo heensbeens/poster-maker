@@ -22,8 +22,10 @@ export interface CanvasElement {
     imageUrl?: string;
     shapeType?: 'rectangle' | 'circle' | 'star' | 'triangle';
     fillColor?: string;
+    fillOpacity?: number;
     strokeColor?: string;
     strokeWidth?: number;
+    strokeEnabled?: boolean;
   };
 }
 
@@ -89,6 +91,7 @@ const initialElements: CanvasElement[] = [
     properties: {
       shapeType: 'circle',
       fillColor: '#8b5cf6',
+      fillOpacity: 1,
       strokeColor: '#000000',
       strokeWidth: 0,
     },

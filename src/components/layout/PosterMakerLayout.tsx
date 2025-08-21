@@ -42,7 +42,7 @@ export const PosterMakerLayout: React.FC = () => {
         </div>
         
         {/* Right Sidebar - Properties Panel */}
-        <div className="w-80 bg-gray-100 border-l border-gray-200 overflow-hidden flex flex-col">
+        <div className="w-80 bg-white border-l border-gray-200 overflow-hidden flex flex-col">
           <PropertiesPanel />
         </div>
       </div>
