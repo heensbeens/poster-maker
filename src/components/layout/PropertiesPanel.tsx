@@ -116,7 +116,7 @@ export const PropertiesPanel: React.FC = () => {
   };
 
   return (
-    <div className="h-full p-4 space-y-6 overflow-y-auto">
+    <div className="flex-1 p-4 space-y-6 overflow-hidden flex flex-col">
       {/* Position Section */}
       <Card>
         <CardHeader className="pb-3">

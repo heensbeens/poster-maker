@@ -120,3 +120,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Ensure no scroll anywhere */
+html, body {
+  overflow: hidden !important;
+  height: 100vh !important;
+  width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#__next, [data-nextjs-scroll-focus-boundary] {
+  height: 100vh !important;
+  width: 100vw !important;
+  overflow: hidden !important;
+}

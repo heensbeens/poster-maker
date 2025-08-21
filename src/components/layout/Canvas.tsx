@@ -72,60 +72,23 @@ export const Canvas: React.FC = () => {
   const canRedo = history.future.length > 0;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Canvas Area */}
-      <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
-        <div 
-          ref={canvasRef}
-          className="relative bg-white border-2 border-gray-300 shadow-lg"
-          style={{ width: '600px', height: '400px' }}
-          onClick={handleCanvasClick}
-          onMouseMove={handleMouseMove}
-        >
-          {/* Render all elements */}
-          {elements.map((element) => (
-            <CanvasElementRenderer
-              key={element.id}
-              element={element}
-              isSelected={selectedElementId === element.id}
-              onMouseDown={(e) => handleElementMouseDown(e, element)}
-            />
-          ))}
-        </div>
-      </div>
-      
-      {/* Canvas Controls - Moved to header or can be added back if needed */}
-      <div className="h-12 bg-white border-t border-gray-200 flex items-center justify-center space-x-4 px-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={undo}
-          disabled={!canUndo}
-          style={{
-            display: 'flex',
-            padding: '8px 12px',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          <Undo className="w-4 h-4" />
-          Undo
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={redo}
-          disabled={!canRedo}
-          style={{
-            display: 'flex',
-            padding: '8px 12px',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          <Redo className="w-4 h-4" />
-          Redo
-        </Button>
+    <div className="flex-1 flex items-center justify-center overflow-hidden">
+      <div 
+        ref={canvasRef}
+        className="relative bg-white border-2 border-gray-300 shadow-lg"
+        style={{ width: '600px', height: '400px' }}
+        onClick={handleCanvasClick}
+        onMouseMove={handleMouseMove}
+      >
+        {/* Render all elements */}
+        {elements.map((element) => (
+          <CanvasElementRenderer
+            key={element.id}
+            element={element}
+            isSelected={selectedElementId === element.id}
+            onMouseDown={(e) => handleElementMouseDown(e, element)}
+          />
+        ))}
       </div>
     </div>
   );

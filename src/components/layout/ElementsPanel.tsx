@@ -17,6 +17,31 @@ import {
 } from 'lucide-react';
 import { usePosterMakerStore } from '@/lib/store';
 
+// Vector shape components for better visual representation
+const RectangleIcon = () => (
+  <svg width="42" height="42" viewBox="0 0 42 42" fill="none">
+    <rect x="8" y="13" width="26" height="16" fill="#9CA3AF" rx="2"/>
+  </svg>
+);
+
+const CircleIcon = () => (
+  <svg width="42" height="42" viewBox="0 0 42 42" fill="none">
+    <circle cx="21" cy="21" r="13" fill="#9CA3AF"/>
+  </svg>
+);
+
+const StarIcon = () => (
+  <svg width="42" height="42" viewBox="0 0 42 42" fill="none">
+    <path d="M21 8L24.118 16.764H33.236L26.059 22.472L29.177 31.236L21 25.528L12.823 31.236L15.941 22.472L8.764 16.764H17.882L21 8Z" fill="#9CA3AF"/>
+  </svg>
+);
+
+const TriangleIcon = () => (
+  <svg width="42" height="42" viewBox="0 0 42 42" fill="none">
+    <path d="M21 8L34 32H8L21 8Z" fill="#9CA3AF"/>
+  </svg>
+);
+
 export const ElementsPanel: React.FC = () => {
   const { addElement } = usePosterMakerStore();
 
@@ -58,10 +83,18 @@ export const ElementsPanel: React.FC = () => {
     });
   };
 
-  const handleAddImage = (fromUrl: boolean = false) => {
-    if (fromUrl) {
-      const url = prompt('Enter image URL:');
-      if (url) {
+  const handleAddImage = () => {
+    // Create a hidden file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+    
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        // Create object URL for the file
+        const imageUrl = URL.createObjectURL(file);
         addElement({
           type: 'image',
           x: 50,
@@ -71,34 +104,42 @@ export const ElementsPanel: React.FC = () => {
           rotation: 0,
           zIndex: 1,
           properties: {
-            imageUrl: url,
+            imageUrl: imageUrl,
           },
         });
       }
-    } else {
-      // TODO: Implement file upload
-      console.log('File upload not implemented yet');
-    }
+    };
+    
+    // Trigger file picker
+    input.click();
   };
 
-  const handleAddBackground = (fromUrl: boolean = false) => {
-    if (fromUrl) {
-      const url = prompt('Enter background image URL:');
-      if (url) {
-        addElement({
-          type: 'background',
-          x: 0,
-          y: 0,
-          width: 600,
-          height: 400,
-          rotation: 0,
-          zIndex: 0,
-          properties: {
-            imageUrl: url,
-          },
-        });
+  const handleAddBackgroundColor = (buttonElement: HTMLButtonElement) => {
+    // Create a hidden color input element
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.value = '#ffffff';
+    input.style.position = 'absolute';
+    
+    // Position the color picker above the button, touching the Background label
+    const rect = buttonElement.getBoundingClientRect();
+    input.style.left = `${rect.left}px`;
+    input.style.top = `${rect.top - 120}px`; // Higher up to touch the Background label
+    input.style.zIndex = '1000';
+    
+    // Add to body temporarily
+    document.body.appendChild(input);
+    
+    input.onchange = (e) => {
+      const color = (e.target as HTMLInputElement).value;
+      // Remove existing background first
+      const { elements, updateElement, deleteElement } = usePosterMakerStore.getState();
+      const existingBackground = elements.find(el => el.type === 'background');
+      if (existingBackground) {
+        deleteElement(existingBackground.id);
       }
-    } else {
+      
+      // Add new background
       addElement({
         type: 'background',
         x: 0,
@@ -108,131 +149,175 @@ export const ElementsPanel: React.FC = () => {
         rotation: 0,
         zIndex: 0,
         properties: {
-          backgroundColor: '#ffffff',
+          backgroundColor: color,
         },
       });
-    }
+      
+      // Clean up
+      document.body.removeChild(input);
+    };
+    
+    input.onblur = () => {
+      // Clean up if user cancels
+      if (document.body.contains(input)) {
+        document.body.removeChild(input);
+      }
+    };
+    
+    // Trigger color picker
+    input.click();
+  };
+
+  const handleAddBackgroundImage = () => {
+    // Create a hidden file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+    
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        // Create object URL for the file
+        const imageUrl = URL.createObjectURL(file);
+        
+        // Remove existing background first
+        const { elements, deleteElement } = usePosterMakerStore.getState();
+        const existingBackground = elements.find(el => el.type === 'background');
+        if (existingBackground) {
+          deleteElement(existingBackground.id);
+        }
+        
+        // Add new background image
+        addElement({
+          type: 'background',
+          x: 0,
+          y: 0,
+          width: 600,
+          height: 400,
+          rotation: 0,
+          zIndex: 0,
+          properties: {
+            imageUrl: imageUrl,
+          },
+        });
+      }
+    };
+    
+    // Trigger file picker
+    input.click();
   };
 
   return (
-    <div className="h-full p-4 space-y-6 overflow-y-auto">
-      {/* Elements Section */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">Elements</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Button
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={() => handleAddText('headline')}
-          >
-            <Type className="w-4 h-4 mr-2" />
-            Headline
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={() => handleAddText('body')}
-          >
-            <Type className="w-4 h-4 mr-2" />
-            Body Text
-          </Button>
-        </CardContent>
-      </Card>
+    <div className="flex flex-col w-full h-full justify-between">
+      {/* Top sections */}
+      <div className="flex flex-col" style={{ gap: '24px' }}>
+        {/* Elements Section */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Elements</h3>
+          <div className="space-y-2">
+            <button
+              className="w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors"
+              onClick={() => handleAddText('headline')}
+            >
+              <div className="text-xl font-bold text-gray-900">Headline</div>
+            </button>
+            <button
+              className="w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors"
+              onClick={() => handleAddText('body')}
+            >
+              <div className="text-base text-gray-700">Body Text</div>
+            </button>
+          </div>
+        </div>
 
-      {/* Images Section */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">Images</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Button
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={() => handleAddImage(false)}
+        {/* Images Section */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Images</h3>
+          <button
+            className="w-full flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors"
+            onClick={handleAddImage}
           >
-            <Upload className="w-4 h-4 mr-2" />
-            Upload
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={() => handleAddImage(true)}
-          >
-            <Link className="w-4 h-4 mr-2" />
-            From URL
-          </Button>
-        </CardContent>
-      </Card>
+            <Upload className="w-6 h-6 text-gray-500 mb-2" />
+            <span className="text-sm text-gray-600">Upload</span>
+          </button>
+        </div>
 
-      {/* Shapes Section */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">Shapes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-12"
+        {/* Shapes Section */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Shapes</h3>
+          <div 
+            className="flex"
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              alignSelf: 'stretch'
+            }}
+          >
+            <button
+              className="flex items-center justify-center hover:bg-gray-50 rounded-lg transition-colors"
+              style={{ width: '42px', height: '42px' }}
               onClick={() => handleAddShape('rectangle')}
             >
-              <Square className="w-6 h-6" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-12"
+              <RectangleIcon />
+            </button>
+            <button
+              className="flex items-center justify-center hover:bg-gray-50 rounded-lg transition-colors"
+              style={{ width: '42px', height: '42px' }}
               onClick={() => handleAddShape('circle')}
             >
-              <Circle className="w-6 h-6" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-12"
+              <CircleIcon />
+            </button>
+            <button
+              className="flex items-center justify-center hover:bg-gray-50 rounded-lg transition-colors"
+              style={{ width: '42px', height: '42px' }}
               onClick={() => handleAddShape('star')}
             >
-              <Star className="w-6 h-6" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-12"
+              <StarIcon />
+            </button>
+            <button
+              className="flex items-center justify-center hover:bg-gray-50 rounded-lg transition-colors"
+              style={{ width: '42px', height: '42px' }}
               onClick={() => handleAddShape('triangle')}
             >
-              <Triangle className="w-6 h-6" />
-            </Button>
+              <TriangleIcon />
+            </button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Background Section */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">Background</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Button
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={() => handleAddBackground(false)}
+      {/* Background Section - At the bottom */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Background</h3>
+        <div 
+          style={{
+            display: 'flex',
+            width: '243px',
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            gap: '15px'
+          }}
+        >
+          {/* Color Picker Button */}
+          <button
+            className="flex-1 flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors"
+            onClick={(e) => handleAddBackgroundColor(e.currentTarget)}
           >
-            <div className="w-4 h-4 mr-2 bg-gray-300 rounded-sm" />
-            Solid Color
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={() => handleAddBackground(true)}
+            <div className="w-6 h-6 bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500 rounded mb-2" />
+            <span className="text-sm text-gray-600">Color</span>
+          </button>
+          
+          {/* Upload Image Button */}
+          <button
+            className="flex-1 flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors"
+            onClick={handleAddBackgroundImage}
           >
-            <Link className="w-4 h-4 mr-2" />
-            From URL
-          </Button>
-        </CardContent>
-      </Card>
+            <Upload className="w-6 h-6 text-gray-500 mb-2" />
+            <span className="text-sm text-gray-600">Upload</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
