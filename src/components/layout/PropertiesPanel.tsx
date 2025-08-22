@@ -222,7 +222,7 @@ export const PropertiesPanel: React.FC = () => {
     if (!selectedElement) return;
     
     const newProperties = {
-        ...selectedElement.properties,
+        ...selectedElement!.properties,
         [property]: value,
     };
 
