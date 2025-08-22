@@ -23,6 +23,7 @@ export const Canvas: React.FC = () => {
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragStartPositions, setDragStartPositions] = useState<Array<{id: string, x: number, y: number}>>([]);
 
   const handleCanvasClick = (e: React.MouseEvent) => {
     // Deselect if clicking on empty canvas
@@ -48,23 +49,46 @@ export const Canvas: React.FC = () => {
         x: e.clientX - rect.left - element.x,
         y: e.clientY - rect.top - element.y,
       });
+      
+      // Store initial positions of all selected elements for multi-select dragging
+      const selectedElements = elements.filter(el => selectedElementIds.includes(el.id));
+      setDragStartPositions(selectedElements.map(el => ({ id: el.id, x: el.x, y: el.y })));
+      
       setIsDragging(true);
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement> | MouseEvent) => {
-    if (!isDragging || !selectedElementId) return;
+    if (!isDragging) return;
     
     const rect = canvasRef.current?.getBoundingClientRect();
     if (rect) {
       const newX = e.clientX - rect.left - dragOffset.x;
       const newY = e.clientY - rect.top - dragOffset.y;
-      moveElement(selectedElementId, newX, newY);
+      
+      // Move all selected elements if multiple are selected
+      if (selectedElementIds.length > 1 && dragStartPositions.length > 0) {
+        // Calculate the delta from the initial click position
+        const initialElement = elements.find(el => el.id === selectedElementId);
+        if (initialElement) {
+          const deltaX = newX - initialElement.x;
+          const deltaY = newY - initialElement.y;
+          
+          // Move all selected elements by the same delta
+          dragStartPositions.forEach(({ id, x: startX, y: startY }) => {
+            moveElement(id, startX + deltaX, startY + deltaY);
+          });
+        }
+      } else if (selectedElementId) {
+        // Single element movement
+        moveElement(selectedElementId, newX, newY);
+      }
     }
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    setDragStartPositions([]);
   };
 
   useEffect(() => {

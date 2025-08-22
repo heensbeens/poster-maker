@@ -44,8 +44,9 @@ export const PropertiesPanel: React.FC = () => {
   } = usePosterMakerStore();
 
   const selectedElement = elements.find(el => el.id === selectedElementId);
+  const hasMultipleSelection = selectedElementIds.length > 1;
 
-  if (!selectedElement) {
+  if (!selectedElement && selectedElementIds.length === 0) {
     return (
       <div style={{ 
         display: 'flex',
@@ -71,7 +72,159 @@ export const PropertiesPanel: React.FC = () => {
     );
   }
 
+  // If we have multiple selections but no single selected element, show alignment options
+  if (hasMultipleSelection && !selectedElement) {
+    return (
+      <div style={{ 
+        display: 'flex',
+        height: '785px',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        flex: '1 0 0',
+        padding: '24px'
+      }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 className="text-sm font-medium text-gray-600 mb-4">Alignment</h3>
+          
+          {/* Alignment Icons */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-600 mb-4">Position</h3>
+            <div style={{
+              display: 'flex',
+              width: '252px',
+              height: '40.342px',
+              alignItems: 'flex-start',
+              flexShrink: 0,
+              gap: '2px'
+            }}>
+              <button
+                style={{
+                  display: 'flex',
+                  padding: '9.909px 14.155px',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '7.078px',
+                  flex: '1 0 0',
+                  alignSelf: 'stretch',
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px'
+                }}
+                onClick={() => alignElementsHorizontally('left')}
+                title="Align Left"
+              >
+                <AlignStartVertical className="w-4 h-4" />
+              </button>
+              <button
+                style={{
+                  display: 'flex',
+                  padding: '9.909px 14.155px',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '7.078px',
+                  flex: '1 0 0',
+                  alignSelf: 'stretch',
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px'
+                }}
+                onClick={() => alignElementsHorizontally('center')}
+                title="Align Center"
+              >
+                <AlignHorizontalJustifyCenter className="w-4 h-4" />
+              </button>
+              <button
+                style={{
+                  display: 'flex',
+                  padding: '9.909px 14.155px',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '7.078px',
+                  flex: '1 0 0',
+                  alignSelf: 'stretch',
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px'
+                }}
+                onClick={() => alignElementsHorizontally('right')}
+                title="Align Right"
+              >
+                <AlignEndVertical className="w-4 h-4" />
+              </button>
+              <button
+                style={{
+                  display: 'flex',
+                  padding: '9.909px 14.155px',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '7.078px',
+                  flex: '1 0 0',
+                  alignSelf: 'stretch',
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px'
+                }}
+                onClick={() => alignElementsVertically('top')}
+                title="Align Top"
+              >
+                <AlignVerticalJustifyStart className="w-4 h-4" />
+              </button>
+              <button
+                style={{
+                  display: 'flex',
+                  padding: '9.909px 14.155px',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '7.078px',
+                  flex: '1 0 0',
+                  alignSelf: 'stretch',
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px'
+                }}
+                onClick={() => alignElementsVertically('center')}
+                title="Align Middle"
+              >
+                <AlignVerticalJustifyCenter className="w-4 h-4" />
+              </button>
+              <button
+                style={{
+                  display: 'flex',
+                  padding: '9.909px 14.155px',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '7.078px',
+                  flex: '1 0 0',
+                  alignSelf: 'stretch',
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px'
+                }}
+                onClick={() => alignElementsVertically('bottom')}
+                title="Align Bottom"
+              >
+                <AlignVerticalJustifyEnd className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <Button 
+          variant="outline" 
+          className="w-full text-gray-700 hover:bg-gray-50"
+          onClick={clearCanvas}
+          style={{ alignSelf: 'stretch' }}
+        >
+          Clear Canvas
+        </Button>
+      </div>
+    );
+  }
+
   const handleTextChange = (property: string, value: string | number) => {
+    if (!selectedElement) return;
+    
     const newProperties = {
         ...selectedElement.properties,
         [property]: value,

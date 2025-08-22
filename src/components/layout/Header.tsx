@@ -42,6 +42,24 @@ export const Header: React.FC = () => {
             htmlEl.style.cursor?.includes('resize')) {
           htmlEl.style.display = 'none';
         }
+        
+        // Convert modern color functions to RGB
+        const computedStyle = window.getComputedStyle(htmlEl);
+        
+        // Handle color property
+        if (computedStyle.color && (computedStyle.color.includes('lab(') || computedStyle.color.includes('oklch(') || computedStyle.color.includes('lch('))) {
+          htmlEl.style.color = '#000000'; // Fallback to black
+        }
+        
+        // Handle backgroundColor property
+        if (computedStyle.backgroundColor && (computedStyle.backgroundColor.includes('lab(') || computedStyle.backgroundColor.includes('oklch(') || computedStyle.backgroundColor.includes('lch('))) {
+          htmlEl.style.backgroundColor = 'transparent'; // Fallback to transparent
+        }
+        
+        // Handle borderColor property
+        if (computedStyle.borderColor && (computedStyle.borderColor.includes('lab(') || computedStyle.borderColor.includes('oklch(') || computedStyle.borderColor.includes('lch('))) {
+          htmlEl.style.borderColor = '#000000'; // Fallback to black
+        }
       });
 
       console.log('Hidden selection elements, capturing canvas...');
@@ -79,15 +97,24 @@ export const Header: React.FC = () => {
               htmlEl.style.border = 'none';
             }
             
-            // Ensure proper color rendering
+            // Handle modern color functions in the cloned document
             const computedStyle = clonedDoc.defaultView?.getComputedStyle(htmlEl);
             if (computedStyle) {
-              // Use computed styles for better color accuracy
-              if (computedStyle.color && computedStyle.color !== 'rgba(0, 0, 0, 0)') {
+              // Convert modern color functions to safe fallbacks
+              if (computedStyle.color && (computedStyle.color.includes('lab(') || computedStyle.color.includes('oklch(') || computedStyle.color.includes('lch('))) {
+                htmlEl.style.color = '#000000';
+              } else if (computedStyle.color && computedStyle.color !== 'rgba(0, 0, 0, 0)') {
                 htmlEl.style.color = computedStyle.color;
               }
-              if (computedStyle.backgroundColor && computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+              
+              if (computedStyle.backgroundColor && (computedStyle.backgroundColor.includes('lab(') || computedStyle.backgroundColor.includes('oklch(') || computedStyle.backgroundColor.includes('lch('))) {
+                htmlEl.style.backgroundColor = 'transparent';
+              } else if (computedStyle.backgroundColor && computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)') {
                 htmlEl.style.backgroundColor = computedStyle.backgroundColor;
+              }
+              
+              if (computedStyle.borderColor && (computedStyle.borderColor.includes('lab(') || computedStyle.borderColor.includes('oklch(') || computedStyle.borderColor.includes('lch('))) {
+                htmlEl.style.borderColor = '#000000';
               }
             }
           });

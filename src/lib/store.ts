@@ -308,20 +308,25 @@ export const usePosterMakerStore = create<PosterMakerStore>((set, get) => ({
     
     if (selectedElements.length <= 1) return;
     
-    const canvasWidth = 573;
-    
     selectedElements.forEach(element => {
       let newX = element.x;
       
       switch (alignType) {
         case 'left':
-          newX = 0;
+          // Find the leftmost element and align all to its left edge
+          const leftmostX = Math.min(...selectedElements.map(el => el.x));
+          newX = leftmostX;
           break;
         case 'center':
-          newX = (canvasWidth - element.width) / 2;
+          // Find the center of all elements and align all to that center
+          const elementCenters = selectedElements.map(el => el.x + el.width / 2);
+          const averageCenter = elementCenters.reduce((sum, center) => sum + center, 0) / elementCenters.length;
+          newX = averageCenter - element.width / 2;
           break;
         case 'right':
-          newX = canvasWidth - element.width;
+          // Find the rightmost element and align all to its right edge
+          const rightmostX = Math.max(...selectedElements.map(el => el.x + el.width));
+          newX = rightmostX - element.width;
           break;
       }
       
@@ -337,20 +342,25 @@ export const usePosterMakerStore = create<PosterMakerStore>((set, get) => ({
     
     if (selectedElements.length <= 1) return;
     
-    const canvasHeight = 668.5;
-    
     selectedElements.forEach(element => {
       let newY = element.y;
       
       switch (alignType) {
         case 'top':
-          newY = 0;
+          // Find the topmost element and align all to its top edge
+          const topmostY = Math.min(...selectedElements.map(el => el.y));
+          newY = topmostY;
           break;
         case 'center':
-          newY = (canvasHeight - element.height) / 2;
+          // Find the center of all elements and align all to that center
+          const elementCenters = selectedElements.map(el => el.y + el.height / 2);
+          const averageCenter = elementCenters.reduce((sum, center) => sum + center, 0) / elementCenters.length;
+          newY = averageCenter - element.height / 2;
           break;
         case 'bottom':
-          newY = canvasHeight - element.height;
+          // Find the bottommost element and align all to its bottom edge
+          const bottommostY = Math.max(...selectedElements.map(el => el.y + el.height));
+          newY = bottommostY - element.height;
           break;
       }
       
