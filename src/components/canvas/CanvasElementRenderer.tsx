@@ -40,8 +40,8 @@ export const CanvasElementRenderer: React.FC<CanvasElementRendererProps> = ({
       let newX = startElementX;
       let newY = startElementY;
 
-      const minWidth = element.type === 'text' ? 50 : 20;
-      const minHeight = element.type === 'text' ? 30 : 20;
+      const minWidth = element.type === 'text' ? 50 : element.type === 'image' ? 30 : 20;
+      const minHeight = element.type === 'text' ? 30 : element.type === 'image' ? 30 : 20;
 
       // Handle horizontal resizing
       if (direction.includes('w')) {
@@ -332,8 +332,8 @@ export const CanvasElementRenderer: React.FC<CanvasElementRendererProps> = ({
             }}
           />
           
-          {/* Resize handles for text and shape elements */}
-          {(element.type === 'text' || element.type === 'shape') && (
+          {/* Resize handles for text, shape, and image elements */}
+          {(element.type === 'text' || element.type === 'shape' || element.type === 'image') && (
             <>
               {/* Corner resize handles */}
               <div
