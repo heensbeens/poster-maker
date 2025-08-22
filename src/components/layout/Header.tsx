@@ -1,12 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Cloud } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 export const Header: React.FC = () => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  
   const handleDownload = async () => {
+    if (isDownloading) return; // Prevent multiple downloads
+    
+    setIsDownloading(true);
     try {
       console.log('Starting download...');
       
@@ -21,95 +26,69 @@ export const Header: React.FC = () => {
 
       console.log('Canvas element found:', canvasElement);
 
-      // Get all elements in the canvas and temporarily fix problematic CSS
-      const allElements = canvasElement.querySelectorAll('*');
+      // Store original styles for restoration
       const originalStyles: Array<{ element: Element; style: string }> = [];
+      const allElements = canvasElement.querySelectorAll('*');
       
-      // Hide selection elements and fix problematic CSS
-      const problematicElements = document.querySelectorAll(
-        '[style*="border-2"], [style*="border-blue"], [style*="box-shadow"], .resize-handle, [class*="border-blue"]'
-      );
-      
-      // Store original styles for all elements
+      // Store and hide selection elements
       allElements.forEach((el) => {
         const htmlEl = el as HTMLElement;
         originalStyles.push({ element: el, style: htmlEl.style.cssText });
         
-        // Fix problematic CSS properties
-        const computedStyle = window.getComputedStyle(htmlEl);
-        
-        // Convert modern color functions (lab, oklch, etc.) to RGB if present
-        const problematicColorFunctions = ['lab(', 'oklch(', 'lch(', 'color('];
-        
-        problematicColorFunctions.forEach(colorFunc => {
-          if (htmlEl.style.color && htmlEl.style.color.includes(colorFunc)) {
-            htmlEl.style.color = '#000000'; // Fallback to black
-          }
-          if (htmlEl.style.backgroundColor && htmlEl.style.backgroundColor.includes(colorFunc)) {
-            htmlEl.style.backgroundColor = 'transparent'; // Fallback to transparent
-          }
-          if (htmlEl.style.borderColor && htmlEl.style.borderColor.includes(colorFunc)) {
-            htmlEl.style.borderColor = '#000000'; // Fallback to black
-          }
-        });
-        
-        // Remove CSS custom properties that might use problematic color functions
-        const style = htmlEl.style;
-        for (let i = 0; i < style.length; i++) {
-          const property = style[i];
-          const value = style.getPropertyValue(property);
-          if (value && problematicColorFunctions.some(func => value.includes(func))) {
-            style.removeProperty(property);
-          }
+        // Hide selection borders and resize handles
+        if (htmlEl.style.border?.includes('blue') || 
+            htmlEl.style.border?.includes('dashed') ||
+            htmlEl.classList.contains('resize-handle') ||
+            htmlEl.style.cursor?.includes('resize')) {
+          htmlEl.style.display = 'none';
         }
-        
-        // Remove other modern CSS properties that might cause issues
-        htmlEl.style.filter = htmlEl.style.filter?.replace(/(lab|oklch|lch|color)\([^)]*\)/g, '') || '';
-        htmlEl.style.backdropFilter = '';
-      });
-      
-      // Hide selection elements specifically
-      problematicElements.forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        htmlEl.style.border = 'none';
-        htmlEl.style.outline = 'none';
-        htmlEl.style.boxShadow = 'none';
-        htmlEl.style.display = 'none';
       });
 
-      console.log('Fixed problematic CSS and hidden selection elements, capturing canvas...');
+      console.log('Hidden selection elements, capturing canvas...');
 
-      // Wait a brief moment for styles to apply
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Wait a moment for styles to apply
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Capture the canvas with html2canvas
       const canvas = await html2canvas(canvasElement, {
         backgroundColor: '#ffffff',
-        scale: 2, // Higher quality
+        scale: 3, // Higher quality for better resolution
         useCORS: true,
-        allowTaint: false,
+        allowTaint: true, // Allow tainted canvas for better image handling
         width: 573,
         height: 668.5,
-        logging: false, // Disable logging to avoid console spam
+        logging: false,
         ignoreElements: (element) => {
-          // Ignore elements with problematic styles
           const htmlElement = element as HTMLElement;
+          // Ignore selection elements and resize handles
           return htmlElement.style.display === 'none' || 
-                 element.classList.contains('resize-handle') ||
-                 htmlElement.style.border?.includes('blue');
+                 htmlElement.style.border?.includes('blue') ||
+                 htmlElement.style.border?.includes('dashed') ||
+                 htmlElement.classList.contains('resize-handle') ||
+                 htmlElement.style.cursor?.includes('resize');
         },
         onclone: (clonedDoc) => {
-          // Additional cleanup on the cloned document
+          // Clean up the cloned document
           const allClonedElements = clonedDoc.querySelectorAll('*');
           allClonedElements.forEach((el) => {
             const htmlEl = el as HTMLElement;
-            const computedStyle = clonedDoc.defaultView?.getComputedStyle(htmlEl);
             
-            // Replace CSS custom properties with actual values
+            // Remove any remaining selection styles
+            if (htmlEl.style.border?.includes('blue') || 
+                htmlEl.style.border?.includes('dashed')) {
+              htmlEl.style.border = 'none';
+            }
+            
+            // Ensure proper color rendering
+            const computedStyle = clonedDoc.defaultView?.getComputedStyle(htmlEl);
             if (computedStyle) {
-              htmlEl.style.color = computedStyle.color || '#000000';
-              htmlEl.style.backgroundColor = computedStyle.backgroundColor || 'transparent';
-              htmlEl.style.borderColor = computedStyle.borderColor || '#000000';
+              // Use computed styles for better color accuracy
+              if (computedStyle.color && computedStyle.color !== 'rgba(0, 0, 0, 0)') {
+                htmlEl.style.color = computedStyle.color;
+              }
+              if (computedStyle.backgroundColor && computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+                htmlEl.style.backgroundColor = computedStyle.backgroundColor;
+              }
             }
           });
         }
@@ -131,7 +110,7 @@ export const Header: React.FC = () => {
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
-          link.download = `posterly-design-${new Date().getTime()}.jpeg`;
+          link.download = `posterly-design-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.jpeg`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -141,12 +120,14 @@ export const Header: React.FC = () => {
           console.error('Failed to create blob');
           alert('Failed to create image. Please try again.');
         }
-      }, 'image/jpeg', 0.9);
+      }, 'image/jpeg', 0.95); // Higher quality JPEG
 
     } catch (error) {
       console.error('Error downloading image:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       alert(`Download failed: ${errorMessage}`);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -166,7 +147,8 @@ export const Header: React.FC = () => {
       <div className="flex items-center space-x-4">
         <Button 
           onClick={handleDownload}
-          className="bg-purple-600 hover:bg-purple-700 text-white"
+          disabled={isDownloading}
+          className="bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50"
           style={{
             display: 'flex',
             padding: '8px 12px',
@@ -174,8 +156,8 @@ export const Header: React.FC = () => {
             gap: '8px'
           }}
         >
-          <Download className="w-4 h-4" />
-          Download
+          <Download className={`w-4 h-4 ${isDownloading ? 'animate-spin' : ''}`} />
+          {isDownloading ? 'Downloading...' : 'Download'}
         </Button>
       </div>
     </header>
