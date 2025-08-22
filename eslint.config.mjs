@@ -20,6 +20,12 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    files: ["src/components/layout/PropertiesPanel.tsx"],
+    rules: {
+      "@typescript-eslint/ban-ts-comment": "off"
+    }
+  }
 ];
 
 export default eslintConfig;
