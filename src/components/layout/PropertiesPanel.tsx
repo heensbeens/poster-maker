@@ -2,11 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { 
   AlignStartVertical,
   AlignHorizontalJustifyCenter,
@@ -465,7 +461,7 @@ export const PropertiesPanel: React.FC = () => {
                 border: '1px solid #e5e7eb',
                 borderRadius: '8px'
               }}
-              onClick={() => bringForward(selectedElement.id)}
+              onClick={() => selectedElement && bringForward(selectedElement.id)}
             >
               <BringToFront className="w-4 h-4" />
             </button>
@@ -480,7 +476,7 @@ export const PropertiesPanel: React.FC = () => {
                 border: '1px solid #e5e7eb',
                 borderRadius: '8px'
               }}
-              onClick={() => sendBackward(selectedElement.id)}
+              onClick={() => selectedElement && sendBackward(selectedElement.id)}
             >
               <SendToBack className="w-4 h-4" />
             </button>
@@ -496,7 +492,7 @@ export const PropertiesPanel: React.FC = () => {
                 borderRadius: '8px',
                 color: '#dc2626'
               }}
-              onClick={() => deleteElement(selectedElement.id)}
+              onClick={() => selectedElement && deleteElement(selectedElement.id)}
             >
               <Trash2 className="w-4 h-4" />
             </button>
